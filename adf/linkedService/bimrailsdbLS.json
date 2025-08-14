@@ -1,0 +1,23 @@
+{
+	"name": "bimrailsdbLS",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "poc-spire-dev.database.windows.net",
+			"database": "bimrailsdb",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "admin_dev",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "AzureKeyVault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "db-login-pwd"
+			}
+		}
+	}
+}
