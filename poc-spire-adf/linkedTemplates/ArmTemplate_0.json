@@ -1,0 +1,634 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "poc-spire-adf"
+		},
+		"AzureKeyVault_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://poc-spire-keyvault.vault.azure.net/"
+		},
+		"adbLS_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0814-075749-7o019bqj"
+		},
+		"bimrailsdbLS_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "poc-spire-dev.database.windows.net"
+		},
+		"bimrailsdbLS_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "bimrailsdb"
+		},
+		"bimrailsdbLS_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "admin_dev"
+		},
+		"pocspirelakeStorage_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "pocspirelake-conn1"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureKeyVault')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('AzureKeyVault_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/adbLS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-3462318359883102.2.azuredatabricks.net",
+					"accessToken": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "AzureKeyVault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "adb-access-token"
+					},
+					"existingClusterId": "[parameters('adbLS_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/bimrailsdbLS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('bimrailsdbLS_properties_typeProperties_server')]",
+					"database": "[parameters('bimrailsdbLS_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('bimrailsdbLS_properties_typeProperties_userName')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "AzureKeyVault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "db-login-pwd"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pocspirelakeStorage')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "AzureKeyVault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "[parameters('pocspirelakeStorage_properties_typeProperties_connectionString_secretName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureKeyVault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ISORequestLogDs')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "bimrailsdbLS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Id",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "MTI_1",
+						"type": "varchar"
+					},
+					{
+						"name": "PAN_2",
+						"type": "varchar"
+					},
+					{
+						"name": "Processing_Code_3",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Transaction_Amt_4",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 2
+					},
+					{
+						"name": "Settlement_Amt_5",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 2
+					},
+					{
+						"name": "Transmission_Dt_time_7",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Settlement_Con_Rate_9",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "STAN_11",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Loc_Txn_Time_12",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Loc_Txn_Date_13",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Exp_Date_14",
+						"type": "varchar"
+					},
+					{
+						"name": "Settle_Date_15",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Con_Date_16",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "Mer_Type_18",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Acq_inst_Country_Code_19",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "POS_Entry_Mode_22",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "CVV_23",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Fun_Code_24",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Msg_Reason_Code_25",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "POS_Cap_Code_26",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "Txn_Fee_Amt_28",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 2
+					},
+					{
+						"name": "Settle_Fee_Amt_29",
+						"type": "decimal",
+						"precision": 12,
+						"scale": 2
+					},
+					{
+						"name": "Acq_inst_ID_Code_32",
+						"type": "varchar"
+					},
+					{
+						"name": "Fwd_Inst_ID_Code_33",
+						"type": "varchar"
+					},
+					{
+						"name": "Track_2_35",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Track_3_36",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ret_Ref_Number_37",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Approve_Code_38",
+						"type": "varchar"
+					},
+					{
+						"name": "Res_Code_39",
+						"type": "varchar"
+					},
+					{
+						"name": "Card_Acceptor_TID_41",
+						"type": "varchar"
+					},
+					{
+						"name": "Card_Acceptor_ID_42",
+						"type": "varchar"
+					},
+					{
+						"name": "Card_Acceptor_Name_43",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Additional_Data_44",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Track1_45",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Net_Info_48",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Txn_Currency_Code_49",
+						"type": "varchar"
+					},
+					{
+						"name": "Settle_Currency_Code_50",
+						"type": "varchar"
+					},
+					{
+						"name": "PIN_Data_52",
+						"type": "varchar"
+					},
+					{
+						"name": "Security_Info_53",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Addl_Amt_54",
+						"type": "varchar"
+					},
+					{
+						"name": "Chip_Card_Data_55",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Cust_Data_56",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Transport_Data_59",
+						"type": "nvarchar"
+					},
+					{
+						"name": "POS_Data_61",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Geographic_Data_62",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AVS_63",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Orig_Data_Elements_90",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Replace_Amt_95",
+						"type": "varchar"
+					},
+					{
+						"name": "Txn_Specific_Data_104",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Txn_Specific_Data2_105",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Txn_Data_106",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Sec_Pin_Block_121",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Addl_Auth_Data_122",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Promotional_Data_123",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Txn_Qualifier_124",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Personal_use_125",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CID_126",
+						"type": "varchar"
+					},
+					{
+						"name": "Ver_Indicator_127",
+						"type": "varchar"
+					},
+					{
+						"name": "NetworkId",
+						"type": "varchar"
+					},
+					{
+						"name": "NodeId",
+						"type": "varchar"
+					},
+					{
+						"name": "ActionCode",
+						"type": "varchar"
+					},
+					{
+						"name": "AuthCode",
+						"type": "varchar"
+					},
+					{
+						"name": "AuthOperation",
+						"type": "varchar"
+					},
+					{
+						"name": "AuthResponseCode",
+						"type": "varchar"
+					},
+					{
+						"name": "CDF1",
+						"type": "varchar"
+					},
+					{
+						"name": "CDF2",
+						"type": "varchar"
+					},
+					{
+						"name": "RefNo",
+						"type": "varchar"
+					},
+					{
+						"name": "ReqType",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "KeyIndexId",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "ReasonCodeId",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "CreatedBy",
+						"type": "varchar"
+					},
+					{
+						"name": "CreatedOn",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "UpdatedOn",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "ISORequestLog"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/bimrailsdbLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ISORequestLogParquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "pocspirelakeStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "iso_request_log.parquet",
+						"folderPath": "bimrailsdb",
+						"container": "bronze"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/pocspirelakeStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/cp_iso_req_logs_pl')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy ISORequestLog Table",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ISORequestLogDs",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ISORequestLogParquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Bronse To Silver",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "Copy ISORequestLog Table",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/le.quang.vuong@quantic.com.vn/poc-azure-cicd/databricks/BronzeToSilverNotebook"
+						},
+						"linkedServiceName": {
+							"referenceName": "adbLS",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ISORequestLogDs')]",
+				"[concat(variables('factoryId'), '/datasets/ISORequestLogParquet')]",
+				"[concat(variables('factoryId'), '/linkedServices/adbLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ScheduledTrigger5m')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "cp_iso_req_logs_pl",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 5,
+						"startTime": "2025-08-14T08:41:00",
+						"timeZone": "SE Asia Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/cp_iso_req_logs_pl')]"
+			]
+		}
+	]
+}
