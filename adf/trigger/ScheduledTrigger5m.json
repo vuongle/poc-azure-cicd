@@ -1,0 +1,24 @@
+{
+	"name": "ScheduledTrigger5m",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "cp_iso_req_logs_pl",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 5,
+				"startTime": "2025-08-14T08:41:00",
+				"timeZone": "SE Asia Standard Time"
+			}
+		}
+	}
+}
