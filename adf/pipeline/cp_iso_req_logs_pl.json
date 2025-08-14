@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy ISORequestLogs Table",
+				"name": "Copy ISORequestLogs Table_01",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
