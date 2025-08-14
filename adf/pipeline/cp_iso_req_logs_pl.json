@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy ISORequestLogs Table_01",
+				"name": "Copy ISORequestLog Table",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -51,6 +51,33 @@
 						"type": "DatasetReference"
 					}
 				]
+			},
+			{
+				"name": "Bronse To Silver",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Copy ISORequestLog Table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/le.quang.vuong@quantic.com.vn/poc-azure-cicd/databricks/BronzeToSilverNotebook"
+				},
+				"linkedServiceName": {
+					"referenceName": "adbLS",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"annotations": []
