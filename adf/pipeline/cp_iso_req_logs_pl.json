@@ -1,0 +1,24 @@
+{
+	"name": "cp_iso_req_logs_pl",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy ISORequestLogs Table",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"enableStaging": false
+				}
+			}
+		],
+		"annotations": []
+	}
+}
