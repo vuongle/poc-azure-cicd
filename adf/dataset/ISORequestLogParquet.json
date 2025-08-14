@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "iso_request_log",
+				"fileName": "iso_request_log.parquet",
 				"folderPath": "bimrailsdb",
 				"container": "bronze"
 			},
