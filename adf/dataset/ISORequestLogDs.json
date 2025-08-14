@@ -1,0 +1,349 @@
+{
+	"name": "ISORequestLogDs",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "bimrailsdbLS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Id",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "MTI_1",
+				"type": "varchar"
+			},
+			{
+				"name": "PAN_2",
+				"type": "varchar"
+			},
+			{
+				"name": "Processing_Code_3",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Transaction_Amt_4",
+				"type": "decimal",
+				"precision": 12,
+				"scale": 2
+			},
+			{
+				"name": "Settlement_Amt_5",
+				"type": "decimal",
+				"precision": 12,
+				"scale": 2
+			},
+			{
+				"name": "Transmission_Dt_time_7",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "Settlement_Con_Rate_9",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "STAN_11",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Loc_Txn_Time_12",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "Loc_Txn_Date_13",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "Exp_Date_14",
+				"type": "varchar"
+			},
+			{
+				"name": "Settle_Date_15",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "Con_Date_16",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "Mer_Type_18",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "Acq_inst_Country_Code_19",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "POS_Entry_Mode_22",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "CVV_23",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "Fun_Code_24",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "Msg_Reason_Code_25",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "POS_Cap_Code_26",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "Txn_Fee_Amt_28",
+				"type": "decimal",
+				"precision": 12,
+				"scale": 2
+			},
+			{
+				"name": "Settle_Fee_Amt_29",
+				"type": "decimal",
+				"precision": 12,
+				"scale": 2
+			},
+			{
+				"name": "Acq_inst_ID_Code_32",
+				"type": "varchar"
+			},
+			{
+				"name": "Fwd_Inst_ID_Code_33",
+				"type": "varchar"
+			},
+			{
+				"name": "Track_2_35",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Track_3_36",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Ret_Ref_Number_37",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Approve_Code_38",
+				"type": "varchar"
+			},
+			{
+				"name": "Res_Code_39",
+				"type": "varchar"
+			},
+			{
+				"name": "Card_Acceptor_TID_41",
+				"type": "varchar"
+			},
+			{
+				"name": "Card_Acceptor_ID_42",
+				"type": "varchar"
+			},
+			{
+				"name": "Card_Acceptor_Name_43",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Additional_Data_44",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Track1_45",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Net_Info_48",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Txn_Currency_Code_49",
+				"type": "varchar"
+			},
+			{
+				"name": "Settle_Currency_Code_50",
+				"type": "varchar"
+			},
+			{
+				"name": "PIN_Data_52",
+				"type": "varchar"
+			},
+			{
+				"name": "Security_Info_53",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Addl_Amt_54",
+				"type": "varchar"
+			},
+			{
+				"name": "Chip_Card_Data_55",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Cust_Data_56",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Transport_Data_59",
+				"type": "nvarchar"
+			},
+			{
+				"name": "POS_Data_61",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Geographic_Data_62",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AVS_63",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Orig_Data_Elements_90",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Replace_Amt_95",
+				"type": "varchar"
+			},
+			{
+				"name": "Txn_Specific_Data_104",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Txn_Specific_Data2_105",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Txn_Data_106",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Sec_Pin_Block_121",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Addl_Auth_Data_122",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Promotional_Data_123",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Txn_Qualifier_124",
+				"type": "nvarchar"
+			},
+			{
+				"name": "Personal_use_125",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CID_126",
+				"type": "varchar"
+			},
+			{
+				"name": "Ver_Indicator_127",
+				"type": "varchar"
+			},
+			{
+				"name": "NetworkId",
+				"type": "varchar"
+			},
+			{
+				"name": "NodeId",
+				"type": "varchar"
+			},
+			{
+				"name": "ActionCode",
+				"type": "varchar"
+			},
+			{
+				"name": "AuthCode",
+				"type": "varchar"
+			},
+			{
+				"name": "AuthOperation",
+				"type": "varchar"
+			},
+			{
+				"name": "AuthResponseCode",
+				"type": "varchar"
+			},
+			{
+				"name": "CDF1",
+				"type": "varchar"
+			},
+			{
+				"name": "CDF2",
+				"type": "varchar"
+			},
+			{
+				"name": "RefNo",
+				"type": "varchar"
+			},
+			{
+				"name": "ReqType",
+				"type": "tinyint",
+				"precision": 3
+			},
+			{
+				"name": "KeyIndexId",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "ReasonCodeId",
+				"type": "smallint",
+				"precision": 5
+			},
+			{
+				"name": "CreatedBy",
+				"type": "varchar"
+			},
+			{
+				"name": "CreatedOn",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "UpdatedOn",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "ISORequestLog"
+		}
+	}
+}

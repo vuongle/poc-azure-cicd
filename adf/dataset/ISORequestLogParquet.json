@@ -1,0 +1,21 @@
+{
+	"name": "ISORequestLogParquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "pocspirelakeStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "iso_request_log",
+				"folderPath": "bimrailsdb",
+				"container": "bronze"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
