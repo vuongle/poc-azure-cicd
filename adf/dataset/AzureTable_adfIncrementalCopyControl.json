@@ -1,0 +1,15 @@
+{
+	"name": "AzureTable_adfIncrementalCopyControl",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureTableStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": "adfIncrementalCopyControl"
+		}
+	}
+}
