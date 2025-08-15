@@ -11,7 +11,7 @@
 			"location": {
 				"type": "AzureBlobStorageLocation",
 				"fileName": {
-					"value": "@{concat(\n    formatDateTime(utcNow(),'yyyy'),\n    formatDateTime(utcNow(),'MM'),\n    formatDateTime(utcNow(),'dd'),\n    formatDateTime(utcNow(),'hh'),\n    formatDateTime(utcNow(),'mm'),\n    formatDateTime(utcNow(),'yyyy'),\n    '.csv'\n)}",
+					"value": "@{concat(\n    formatDateTime(utcNow(),'yyyy'),\n    formatDateTime(utcNow(),'MM'),\n    formatDateTime(utcNow(),'dd'),\n    formatDateTime(utcNow(),'hh'),\n    formatDateTime(utcNow(),'mm'),\n    formatDateTime(utcNow(),'ss'),\n    '.csv'\n)}",
 					"type": "Expression"
 				},
 				"folderPath": "bimrailsdb/iso_req_log",

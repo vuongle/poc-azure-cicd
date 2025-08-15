@@ -6,7 +6,14 @@
 			{
 				"name": "Copy ISORequestLog",
 				"type": "Copy",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "If Condition1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -19,7 +26,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "SELECT Id, CreatedOn, UpdatedOn \nFROM dbo.ISORequestLog \nWHERE CreatedOn > CONVERT(datetime2, '@{variables('lastCopyToCreatedOn')}')",
+							"value": "SELECT Id, CreatedOn, UpdatedOn \nFROM dbo.ISORequestLog \nWHERE CreatedOn > CONVERT(datetime2, @{variables('lastCopyToCreatedOn')})",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -88,8 +95,8 @@
 				}
 			},
 			{
-				"name": "Set variable lastCopyToCreatedOn",
-				"type": "SetVariable",
+				"name": "If Condition1",
+				"type": "IfCondition",
 				"dependsOn": [
 					{
 						"activity": "Lookup_Last_Copy",
@@ -98,17 +105,47 @@
 						]
 					}
 				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "lastCopyToCreatedOn",
-					"value": {
-						"value": "@coalesce(activity('Lookup_Last_Copy').output,'2000-01-01T00:00:00Z')",
+					"expression": {
+						"value": "@greater(length(activity('Lookup_Last_Copy').output.value), 0)",
 						"type": "Expression"
-					}
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Set LastWatermark_False",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "lastCopyToCreatedOn",
+								"value": "'2000-01-01T00:00:00Z'"
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Set LastWatermark_True",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "lastCopyToCreatedOn",
+								"value": {
+									"value": "@activity('Lookup_Last_Copy').output.value[0]",
+									"type": "Expression"
+								}
+							}
+						}
+					]
 				}
 			}
 		],
