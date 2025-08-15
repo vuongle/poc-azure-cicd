@@ -1,0 +1,119 @@
+{
+	"name": "cp_iso_req_logs_incremental",
+	"properties": {
+		"description": "only copy new created records",
+		"activities": [
+			{
+				"name": "Copy ISORequestLog",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup_Last_Copy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT Id, CreatedOn, UpdatedOn \nFROM dbo.ISORequestLog \nWHERE CreatedOn > CONVERT(datetime2, '@{variables('lastCopyToCreatedOn')}')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ISOReqLogIncrementalCopyDs",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ISOReqLogIncrementalCopyCSV",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Lookup_Last_Copy",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureTableSource",
+						"azureTableSourceQuery": {
+							"value": "@{concat('PartitionKey eq ''', pipeline().parameters.partitionKey,\n''' and RowKey eq ''',pipeline().parameters.tableName, '''')}",
+							"type": "Expression"
+						},
+						"azureTableSourceIgnoreTableNotFound": false
+					},
+					"dataset": {
+						"referenceName": "AzureTable_adfIncrementalCopyControl",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			}
+		],
+		"parameters": {
+			"tableName": {
+				"type": "string",
+				"defaultValue": "dbo.ISORequestLog"
+			},
+			"partitionKey": {
+				"type": "string",
+				"defaultValue": "azuresql"
+			}
+		},
+		"variables": {
+			"lastCopyToCreatedOn": {
+				"type": "String",
+				"defaultValue": "@coalesce(activity('Lookup_Last_Copy').output.firstRow.LastWatermark,'2000-01-01T00:00:00Z')"
+			},
+			"newCopyToCreatedOn": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}

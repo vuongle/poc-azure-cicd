@@ -1,0 +1,27 @@
+{
+	"name": "ISOReqLogIncrementalCopyCSV",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "pocspirelakeStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@{concat(\n    formatDateTime(utcNow(),'yyyy'),\n    formatDateTime(utcNow(),'MM'),\n    formatDateTime(utcNow(),'dd'),\n    formatDateTime(utcNow(),'hh'),\n    formatDateTime(utcNow(),'mm'),\n    formatDateTime(utcNow(),'yyyy'),\n    '.csv'\n)}",
+					"type": "Expression"
+				},
+				"folderPath": "bimrailsdb/iso_req_log",
+				"container": "bronze"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

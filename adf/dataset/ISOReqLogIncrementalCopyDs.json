@@ -1,0 +1,16 @@
+{
+	"name": "ISOReqLogIncrementalCopyDs",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "bimrailsdbLS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "ISORequestLog"
+		}
+	}
+}
