@@ -1,0 +1,21 @@
+{
+	"name": "ISOReqLogSelectedColParquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "pocspirelakeStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "req_log_selected_col.parquet",
+				"folderPath": "bimrailsdb",
+				"container": "bronze"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
