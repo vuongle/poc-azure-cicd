@@ -1,0 +1,17 @@
+{
+	"name": "AzureTableStorage",
+	"properties": {
+		"annotations": [],
+		"type": "AzureTableStorage",
+		"typeProperties": {
+			"connectionString": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "AzureKeyVault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "pocspirelake-conn1"
+			}
+		}
+	}
+}
