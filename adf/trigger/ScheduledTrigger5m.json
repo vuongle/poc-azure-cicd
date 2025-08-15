@@ -2,7 +2,7 @@
 	"name": "ScheduledTrigger5m",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Stopped",
+		"runtimeState": "Started",
 		"pipelines": [
 			{
 				"pipelineReference": {
