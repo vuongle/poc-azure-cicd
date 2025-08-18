@@ -4,70 +4,6 @@
 		"description": "only copy new created records",
 		"activities": [
 			{
-				"name": "Copy ISORequestLog",
-				"type": "Copy",
-				"dependsOn": [
-					{
-						"activity": "If Condition1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "AzureSqlSource",
-						"sqlReaderQuery": {
-							"value": "SELECT Id, CreatedOn, UpdatedOn \nFROM dbo.ISORequestLog \nWHERE CreatedOn > CONVERT(datetime, @{concat('''', variables('lastCopyToCreatedOn'), '''') })",
-							"type": "Expression"
-						},
-						"queryTimeout": "02:00:00",
-						"partitionOption": "None"
-					},
-					"sink": {
-						"type": "DelimitedTextSink",
-						"storeSettings": {
-							"type": "AzureBlobStorageWriteSettings",
-							"copyBehavior": "FlattenHierarchy"
-						},
-						"formatSettings": {
-							"type": "DelimitedTextWriteSettings",
-							"quoteAllText": true,
-							"fileExtension": ".txt"
-						}
-					},
-					"enableStaging": false,
-					"translator": {
-						"type": "TabularTranslator",
-						"typeConversion": true,
-						"typeConversionSettings": {
-							"allowDataTruncation": true,
-							"treatBooleanAsNumber": false
-						}
-					}
-				},
-				"inputs": [
-					{
-						"referenceName": "ISOReqLogIncrementalCopyDs",
-						"type": "DatasetReference"
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "ISOReqLogIncrementalCopyCSV",
-						"type": "DatasetReference"
-					}
-				]
-			},
-			{
 				"name": "Lookup_Last_Copy",
 				"type": "Lookup",
 				"dependsOn": [],
@@ -150,11 +86,11 @@
 				}
 			},
 			{
-				"name": "Max_Created_On",
+				"name": "New Records",
 				"type": "Lookup",
 				"dependsOn": [
 					{
-						"activity": "Copy ISORequestLog",
+						"activity": "If Condition1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -172,7 +108,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "SELECT CONVERT(varchar(33), MAX(CreatedOn), 126) AS maxWM \nFROM @{pipeline().parameters.tableName} \n",
+							"value": "SELECT COUNT(*) AS rowscount  \nFROM dbo.ISORequestLog \nWHERE CreatedOn > CONVERT(datetime, @{concat('''', variables('lastCopyToCreatedOn'), '''') })",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -185,87 +121,200 @@
 				}
 			},
 			{
-				"name": "newCopyToCreatedOn",
-				"type": "SetVariable",
+				"name": "Have New Records",
+				"type": "IfCondition",
 				"dependsOn": [
 					{
-						"activity": "Max_Created_On",
+						"activity": "New Records",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					}
 				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "newCopyToCreatedOn",
-					"value": {
-						"value": "@coalesce(activity('Max_Created_On').output.firstRow.maxWM, variables('lastCopyToCreatedOn'))",
+					"expression": {
+						"value": "@greater(activity('New Records').output.firstRow.rowscount, 0)\n\n",
 						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "Upsert AzureTable",
-				"type": "Copy",
-				"dependsOn": [
-					{
-						"activity": "newCopyToCreatedOn",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "AzureSqlSource",
-						"sqlReaderQuery": {
-							"value": "SELECT\n  '@{pipeline().parameters.partitionKey}'  AS PartitionKey,\n  '@{pipeline().parameters.tableName}'     AS RowKey,\n  '@{variables('newCopyToCreatedOn')}'           AS LastWatermark",
-							"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Copy ISORequestLog",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "SELECT Id, CreatedOn, UpdatedOn \nFROM dbo.ISORequestLog \nWHERE CreatedOn > CONVERT(datetime, @{concat('''', variables('lastCopyToCreatedOn'), '''') })",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobStorageWriteSettings",
+										"copyBehavior": "FlattenHierarchy"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ISOReqLogIncrementalCopyDs",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ISOReqLogIncrementalCopyCSV",
+									"type": "DatasetReference"
+								}
+							]
 						},
-						"queryTimeout": "02:00:00",
-						"partitionOption": "None"
-					},
-					"sink": {
-						"type": "AzureTableSink",
-						"azureTableInsertType": "merge",
-						"azureTablePartitionKeyName": "PartitionKey",
-						"azureTableRowKeyName": "RowKey",
-						"writeBatchSize": 10000
-					},
-					"enableStaging": false,
-					"translator": {
-						"type": "TabularTranslator",
-						"typeConversion": true,
-						"typeConversionSettings": {
-							"allowDataTruncation": true,
-							"treatBooleanAsNumber": false
+						{
+							"name": "Max_Created_On",
+							"type": "Lookup",
+							"dependsOn": [
+								{
+									"activity": "Copy ISORequestLog",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "SELECT CONVERT(varchar(33), MAX(CreatedOn), 126) AS maxWM \nFROM @{pipeline().parameters.tableName} \n",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "ISOReqLogIncrementalCopyDs",
+									"type": "DatasetReference"
+								}
+							}
+						},
+						{
+							"name": "newCopyToCreatedOn",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Max_Created_On",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "newCopyToCreatedOn",
+								"value": {
+									"value": "@coalesce(activity('Max_Created_On').output.firstRow.maxWM, variables('lastCopyToCreatedOn'))",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Upsert AzureTable",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "newCopyToCreatedOn",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "SELECT\n  '@{pipeline().parameters.partitionKey}'  AS PartitionKey,\n  '@{pipeline().parameters.tableName}'     AS RowKey,\n  '@{variables('newCopyToCreatedOn')}'           AS LastWatermark",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "AzureTableSink",
+									"azureTableInsertType": "merge",
+									"azureTablePartitionKeyName": "PartitionKey",
+									"azureTableRowKeyName": "RowKey",
+									"writeBatchSize": 10000
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ISOReqLogIncrementalCopyDs",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "AzureTable_adfIncrementalCopyControl",
+									"type": "DatasetReference"
+								}
+							]
 						}
-					}
-				},
-				"inputs": [
-					{
-						"referenceName": "ISOReqLogIncrementalCopyDs",
-						"type": "DatasetReference"
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "AzureTable_adfIncrementalCopyControl",
-						"type": "DatasetReference"
-					}
-				]
+					]
+				}
 			}
 		],
 		"parameters": {
