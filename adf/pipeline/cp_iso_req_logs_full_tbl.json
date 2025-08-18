@@ -72,7 +72,34 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/Users/le.quang.vuong@quantic.com.vn/poc-azure-cicd/databricks/BronzeToSilverNotebook"
+					"notebookPath": "/Users/vo.nhat.truong@quantic.com.vn/poc-azure-cicd/databricks/BronzeToSilverNotebook"
+				},
+				"linkedServiceName": {
+					"referenceName": "adbLS",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Silver To Gold",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Bronse To Silver",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/vo.nhat.truong@quantic.com.vn/poc-azure-cicd/databricks/SilverToGoldNotebook"
 				},
 				"linkedServiceName": {
 					"referenceName": "adbLS",
